@@ -1,0 +1,41 @@
+name: Deploy code on Lambda
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy_lambda:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v3
+
+      # No need to setup node or install dependencies because no packages are used
+
+      - name: clean old artifacts
+        run: rm -f lambda_package.zip
+
+      - name: build lambda deployment package
+        run: zip -r lambda_package.zip index.js
+
+      # Optional: upload artifact for inspection
+      # - name: Upload Lambda package artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: lambda_package
+      #     path: lambda_package.zip
+
+      - name: deploy lambda function
+        uses: appleboy/lambda-action@v0.2.0
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: ${{ secrets.AWS_REGION }}
+          function_name: sample-nodejs-lambda
+          zip_file: lambda_package.zip
+          handler: index.handler
+          runtime: nodejs18.x
+          role: arn:aws:iam::735902244362:role/lambda_exec_role
