@@ -13,20 +13,11 @@ jobs:
       - name: checkout repository
         uses: actions/checkout@v3
 
-      # No need to setup node or install dependencies because no packages are used
-
       - name: clean old artifacts
         run: rm -f lambda_package.zip
 
       - name: build lambda deployment package
         run: zip -r lambda_package.zip index.js
-
-      # Optional: upload artifact for inspection
-      # - name: Upload Lambda package artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: lambda_package
-      #     path: lambda_package.zip
 
       - name: deploy lambda function
         uses: appleboy/lambda-action@v0.2.0
